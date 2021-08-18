@@ -58,11 +58,8 @@ public class Karatista {
         System.out.println("Karatista " + this.ime + " napada sa " + randElem + " katom.");
     }
 
-    // Napraviti metod napadni(int index), koja za prosledjeni indeks ispisuje poruku: "Karatista {ime} napada sa {kata[index]} katom".
-    //Napraviti metod vatreniNapad(), koja ispisuje istu poruku kao i napadni() metod, osim sto bira nasumicnu katu.
     public void log() {
         System.out.println("Karatista: " + this.ime + ", " + this.godine + ", " + this.rang + " - zna naredne kate " + Arrays.toString(this.kata));
     }
-
 }
 
