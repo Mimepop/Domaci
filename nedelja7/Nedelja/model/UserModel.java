@@ -52,4 +52,14 @@ public class UserModel {
     public void setAdmin(boolean admin) {
         this.admin = admin;
     }
+    @Override
+    public String toString() {
+        return "UserModel{" +
+                "userId=" + userId +
+                ", userName='" + userName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", admin=" + admin +
+                '}';
+    }
 }
