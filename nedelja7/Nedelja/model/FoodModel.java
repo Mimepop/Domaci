@@ -61,4 +61,8 @@ public class FoodModel {
     public void setFoodFat(double foodFat) {
         this.foodFat = foodFat;
     }
+     @Override
+    public String toString() {
+        return "Naziv: " + foodName + " Kcal: " + foodKcal;
+    }
 }
