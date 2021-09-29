@@ -12,58 +12,68 @@ public class MealDaoSQL implements MealDao {
     private static final Connection conn = DatabaseConnection.getConnection();
 
     @Override
-    public void insert(MealModel mm) {
-        try {
-            PreparedStatement st = conn.prepareStatement("INSERT INTOO meal " +
-                    " VALUES(?,?,?,?)");
-            st.setInt(1, mm.getMealId());
-            st.setString(2, mm.getMealName());
-            st.setString(3, mm.getMealDesc());
-            st.setString(4, mm.getMealDifficulty());
+    public void add(MealModel mm) {
+        try{
+            PreparedStatement st = conn.prepareStatement("INSERT INTO meal " +
+                    "VALUES (?,?,?,?)");
+            st.setInt(1,mm.getMealId());
+            st.setString(2,mm.getMealName());
+            st.setString(3,mm.getMealDesc());
+            st.setString(4,mm.getMealDifficulty());
             st.executeUpdate();
             st.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch(SQLException e){
+            e.printStackTrace();
         }
     }
 
     @Override
-    public void delete(int id) throws SQLException {
-        String query = "DELETE FROM meal WHERE meal_id = ?";
-        PreparedStatement st = conn.prepareStatement(query);
-
+    public void delete(int id) {
+        try {
+            PreparedStatement st = conn.prepareStatement("DELETE FROM meal WHERE meal_id = ?");
+            st.setInt(1,id);
+            st.executeUpdate();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void update(MealModel mm) {
         try {
-            PreparedStatement st = conn.prepareStatement("UPDATE meal" +
-                    " SET meal_id = ?," +
-                    "meal_name = ?," +
-                    "meal_desc = ?," +
-                    "meal_difficulty = ?," +
+            PreparedStatement st = conn.prepareStatement("UPDATE meal " +
+                    "SET meal_name = ?, meal_desc = ?, meal_difficulty = ? " +
                     "WHERE meal_id = ?");
-            st.setInt(1, mm.getMealId());
-            st.setString(2, mm.getMealName());
-            st.setString(3, mm.getMealDesc());
-            st.setString(4, mm.getMealDifficulty());
+            st.setString(1,mm.getMealName());
+            st.setString(2,mm.getMealDesc());
+            st.setString(3,mm.getMealDifficulty());
+            st.setInt(4,mm.getMealId());
             st.executeUpdate();
-            st.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
-
     }
 
     @Override
     public MealModel getMeal(int id) {
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM meal WHERE meal_id = ? ");
+            ResultSet rs = st.executeQuery("SELECT * FROM meal WHERE meal_id = " + id);
+            if(rs.next()){
+                return new MealModel(
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getString(4)
+                );
+            }
+            else{
+                System.out.println("No results");
+            }
 
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -74,41 +84,45 @@ public class MealDaoSQL implements MealDao {
         try {
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM meal");
-            while (rs.next()) {
-                MealModel mm = new MealModel(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4));
-                mealList.add(mm);
+            while(rs.next()){
+                mealList.add(new MealModel(
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getString(4)
+                ));
             }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return mealList;
     }
 
     @Override
     public List<String> getFoodMealNames(int meal_id) {
-        List<String> list = new ArrayList<>();
+        List<String> mealNames = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT food_name FROM food f INNER JOIN mealfood mf ON mf.food_id = f.food_id WHERE meal_id = " + meal_id);
-            while (rs.next())
-                list.add(rs.getString(1));
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            ResultSet rs = st.executeQuery("SELECT food_name FROM food WHERE food_id IN " +
+                    "(SELECT food_id FROM mealfood WHERE meal_id = " + meal_id + ")");
+            while(rs.next()){
+                mealNames.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return list;
-
+        return mealNames;
     }
 
     @Override
     public List<FoodModel> getFoodMeal(int meal_id) {
-        List<FoodModel> list = new ArrayList<>();
-
+        List<FoodModel> meals = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM food f INNER JOIN mealfood mf ON mf.food_id = f.food_id WHERE meal_id = " + meal_id);
-
-            while (rs.next())
-                list.add(new FoodModel(
+            ResultSet rs = st.executeQuery("SELECT * FROM food WHERE food_id IN " +
+                    "(SELECT food_id FROM mealfood WHERE meal_id =" + meal_id + ")");
+            while(rs.next()){
+                meals.add(new FoodModel(
                                 rs.getInt(1),
                                 rs.getString(2),
                                 rs.getDouble(3),
@@ -117,11 +131,10 @@ public class MealDaoSQL implements MealDao {
                                 rs.getDouble(6)
                         )
                 );
-
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return list;
+        return meals;
     }
 }
-
