@@ -8,7 +8,7 @@ public class zadatak2 {
         String s = msg.toUpperCase().replaceAll("\\(","");
         for (char character : s.toCharArray()) {
                 int originalAlphabetPosition = character - 'a';
-                int newAlphabetPosition = (originalAlphabetPosition + n) % 26;
+                int newAlphabetPosition = (originalAlphabetPosition + n) % 128;
                 char newCharacter = (char) ('a' + newAlphabetPosition);
                 result.append(newCharacter);
         }
